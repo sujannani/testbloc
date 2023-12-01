@@ -199,7 +199,6 @@ class _PageState extends State<Page> {
                                         InkWell(
                                           onTap: () async {
                                             changeBookmark(item);
-                                            refresh();
                                           },
                                           child: Icon(
                                             (item.bookMarked)
