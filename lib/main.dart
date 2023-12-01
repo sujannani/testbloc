@@ -34,15 +34,27 @@ class Page extends StatefulWidget {
 }
 
 class _PageState extends State<Page> {
+  final controller = ScrollController();
+  bool hasMore = true;
+  bool isLoading = false;
+  int page = 0;
   @override
   void initState() {
     super.initState();
-    refresh();
+    fetch();
+    controller.addListener(() {
+      if (controller.position.maxScrollExtent == controller.offset) {
+        fetch();
+      }
+    });
   }
 
-  List<dynamic> items = [];
-
-  Future<void> refresh() async {
+  Future fetch() async {
+    if (isLoading) return;
+    isLoading = true;
+    const limit = 8;
+    // final url = Uri.parse(
+    //     'http://flutter.dev.emotorad.com/get_routes?_limit=$limit&_page=$page');
     final url = Uri.parse('http://flutter.dev.emotorad.com/get_routes');
     final authToken = 'test@abc.in';
     try {
@@ -52,15 +64,18 @@ class _PageState extends State<Page> {
           HttpHeaders.authorizationHeader: 'Bearer $authToken',
         },
       );
-      print(response.body);
       if (response.statusCode == 200) {
-        print("hello");
         final List<dynamic> jsonResponse = json.decode(response.body);
         final List<dynamic> newItems =
             jsonResponse.map((json) => Data.fromJson(json)).toList();
         setState(() {
-          print("in set");
-          items = newItems;
+          isLoading = false;
+          if (newItems.length < 8) {
+            hasMore = false;
+          } else {
+            page++;
+            items.addAll(newItems);
+          }
         });
       } else {
         print('Failed to load data. Status code: ${response.statusCode}');
@@ -68,6 +83,41 @@ class _PageState extends State<Page> {
     } catch (error) {
       print('Error during API request: $error');
     }
+  }
+
+  void changeBookmark(item) async {
+    final authToken = 'test@abc.in';
+    Map<String, dynamic> requestBody = {
+      "route_id": item.id,
+      "bookmark": !item.bookMarked,
+    };
+    String requestBodyJson = json.encode(requestBody);
+    final urlMark = Uri.parse('http://flutter.dev.emotorad.com/bookmark_route');
+    final response = await http.post(
+      urlMark,
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer $authToken',
+      },
+      body: requestBodyJson,
+    );
+    if (response.statusCode == 200) {
+      print('Success: ${response.body}');
+    } else {
+      print('Failed: ${response.statusCode}, ${response.body}');
+    }
+  }
+
+  List<dynamic> items = [];
+
+  Future<void> refresh() async {
+    setState(() {
+      isLoading = false;
+      hasMore = true;
+      page = 0;
+      items.clear();
+    });
+    fetch();
   }
 
   @override
@@ -79,77 +129,99 @@ class _PageState extends State<Page> {
           : RefreshIndicator(
               onRefresh: refresh,
               child: ListView.builder(
-                  itemCount: items.length,
+                  controller: controller,
+                  itemCount: items.length + 1,
                   itemBuilder: (context, index) {
-                    final item = items[index];
-                    return Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Card(
-                        child: Column(
-                          children: [
-                            Container(
-                              width: double.maxFinite,
-                              height: 150,
-                              decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                image: NetworkImage(item.image),
-                                // fit: BoxFit.cover,
-                              )),
-                            ),
-                            Card(
-                              child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              IconData(0xe3ab,
-                                                  fontFamily: 'MaterialIcons'),
-                                              size: 24.0,
-                                              color: Colors.green,
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              item.startLoc,
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w400,
+                    if (index < items.length) {
+                      final item = items[index];
+                      return Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Card(
+                          child: Column(
+                            children: [
+                              Container(
+                                width: double.maxFinite,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                  image: NetworkImage(item.image),
+                                )),
+                              ),
+                              Card(
+                                child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                IconData(0xe3ab,
+                                                    fontFamily:
+                                                        'MaterialIcons'),
+                                                size: 24.0,
+                                                color: Colors.green,
                                               ),
-                                            ),
-                                          ],
+                                              SizedBox(width: 5),
+                                              Text(
+                                                item.startLoc,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                IconData(0xe3ab,
+                                                    fontFamily:
+                                                        'MaterialIcons'),
+                                                size: 24.0,
+                                                color: Colors.red,
+                                              ),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                item.endLoc,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                      InkWell(
+                                        onTap: () async{
+                                          changeBookmark(item);
+                                          refresh();
+                                        },
+                                        child: Icon(
+                                          Icons.favorite,
+                                          color: (item.bookMarked)
+                                              ? Colors.red
+                                              : Colors.grey,
                                         ),
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              IconData(0xe3ab,
-                                                  fontFamily: 'MaterialIcons'),
-                                              size: 24.0,
-                                              color: Colors.red,
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              item.endLoc,
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                    Icon(Icons.favorite)
-                                  ]),
-                            )
-                          ],
+                                      )
+                                    ]),
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    } else {
+                      return Padding(
+                        padding: EdgeInsets.all(10),
+                        child: (hasMore)
+                            ? CircularProgressIndicator()
+                            : Text("NO more data"),
+                      );
+                    }
                   }),
             ),
     ));
