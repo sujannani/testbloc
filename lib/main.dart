@@ -123,108 +123,119 @@ class _PageState extends State<Page> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-      child: items.isEmpty
-          ? CircularProgressIndicator()
-          : RefreshIndicator(
-              onRefresh: refresh,
-              child: ListView.builder(
-                  controller: controller,
-                  itemCount: items.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index < items.length) {
-                      final item = items[index];
-                      return Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Card(
-                          child: Column(
-                            children: [
-                              Container(
-                                width: double.maxFinite,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                  image: NetworkImage(item.image),
-                                )),
-                              ),
-                              Card(
-                                child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                IconData(0xe3ab,
-                                                    fontFamily:
-                                                        'MaterialIcons'),
-                                                size: 24.0,
-                                                color: Colors.green,
-                                              ),
-                                              SizedBox(width: 5),
-                                              Text(
-                                                item.startLoc,
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w400,
+      body: Center(
+        child: items.isEmpty
+            ? CircularProgressIndicator()
+            : RefreshIndicator(
+                onRefresh: refresh,
+                child: ListView.builder(
+                    controller: controller,
+                    itemCount: items.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index < items.length) {
+                        final item = items[index];
+                        return Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Card(
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: double.maxFinite,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                    image: NetworkImage(item.image),
+                                  )),
+                                ),
+                                Card(
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  IconData(0xe3ab,
+                                                      fontFamily:
+                                                          'MaterialIcons'),
+                                                  size: 24.0,
+                                                  color: Colors.green,
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                IconData(0xe3ab,
-                                                    fontFamily:
-                                                        'MaterialIcons'),
-                                                size: 24.0,
-                                                color: Colors.red,
-                                              ),
-                                              SizedBox(width: 5),
-                                              Text(
-                                                item.endLoc,
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w400,
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  item.startLoc,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                      InkWell(
-                                        onTap: () async {
-                                          changeBookmark(item);
-                                          refresh();
-                                        },
-                                        child: Icon(
-                                          (item.bookMarked)
-                                              ? Icons.favorite
-                                              : Icons.favorite_outline,
-                                          color: Colors.red,
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  IconData(0xe3ab,
+                                                      fontFamily:
+                                                          'MaterialIcons'),
+                                                  size: 24.0,
+                                                  color: Colors.red,
+                                                ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  item.endLoc,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          ],
                                         ),
-                                      )
-                                    ]),
-                              )
-                            ],
+                                        InkWell(
+                                          onTap: () async {
+                                            changeBookmark(item);
+                                            refresh();
+                                          },
+                                          child: Icon(
+                                            (item.bookMarked)
+                                                ? Icons.favorite
+                                                : Icons.favorite_outline,
+                                            color: Colors.red,
+                                          ),
+                                        )
+                                      ]),
+                                )
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    } else {
-                      return Padding(
-                        padding: EdgeInsets.all(10),
-                        child: (hasMore)
-                            ? CircularProgressIndicator()
-                            : Text("NO more data"),
-                      );
-                    }
-                  }),
-            ),
-    ));
+                        );
+                      } else {
+                        return Padding(
+                          padding: EdgeInsets.all(10),
+                          child: (hasMore)
+                              ? CircularProgressIndicator()
+                              : Text("NO more data"),
+                        );
+                      }
+                    }),
+              ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          controller.animateTo(
+            0.0,
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOut,
+          );
+        },
+        child: const Icon(Icons.arrow_upward),
+      ),
+    );
   }
 }
 
