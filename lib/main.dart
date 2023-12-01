@@ -197,15 +197,15 @@ class _PageState extends State<Page> {
                                         ],
                                       ),
                                       InkWell(
-                                        onTap: () async{
+                                        onTap: () async {
                                           changeBookmark(item);
                                           refresh();
                                         },
                                         child: Icon(
-                                          Icons.favorite,
-                                          color: (item.bookMarked)
-                                              ? Colors.red
-                                              : Colors.grey,
+                                          (item.bookMarked)
+                                              ? Icons.favorite
+                                              : Icons.favorite_outline,
+                                          color: Colors.red,
                                         ),
                                       )
                                     ]),
