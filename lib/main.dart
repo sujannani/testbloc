@@ -26,30 +26,6 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class Data {
-  late int id;
-  late String startLoc;
-  late String endLoc;
-  late String image;
-  late bool? bookMarked;
-  Data(
-      {required this.id,
-      required this.startLoc,
-      required this.endLoc,
-      required this.image,
-      required this.bookMarked});
-
-  factory Data.fromJson(Map<String, dynamic> json) {
-    return Data(
-      id: json['id'] as int,
-      startLoc: json['start_loc'].toString(),
-      endLoc: json['end_loc'].toString(),
-      image: json['image'].toString(),
-      bookMarked: json['bookmarked'] as bool?,
-    );
-  }
-}
-
 class Page extends StatefulWidget {
   const Page({Key? key});
 
@@ -97,7 +73,8 @@ class _PageState extends State<Page> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: items.isEmpty
+        body: Center(
+      child: items.isEmpty
           ? CircularProgressIndicator()
           : RefreshIndicator(
               onRefresh: refresh,
@@ -120,100 +97,85 @@ class _PageState extends State<Page> {
                               )),
                             ),
                             Card(
-                              child: Row(children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
                                   children: [
-                                    Row(
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Icon(
-                                          IconData(0xe3ab,
-                                              fontFamily: 'MaterialIcons'),
-                                          size: 24.0,
-                                          color: Colors.green,
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              IconData(0xe3ab,
+                                                  fontFamily: 'MaterialIcons'),
+                                              size: 24.0,
+                                              color: Colors.green,
+                                            ),
+                                            SizedBox(width: 5),
+                                            Text(
+                                              item.startLoc,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        SizedBox(width: 5),
-                                        Text(
-                                          item.startLoc,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              IconData(0xe3ab,
+                                                  fontFamily: 'MaterialIcons'),
+                                              size: 24.0,
+                                              color: Colors.red,
+                                            ),
+                                            SizedBox(width: 5),
+                                            Text(
+                                              item.endLoc,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ],
+                                        )
                                       ],
                                     ),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          IconData(0xe3ab,
-                                              fontFamily: 'MaterialIcons'),
-                                          size: 24.0,
-                                          color: Colors.red,
-                                        ),
-                                        SizedBox(width: 5),
-                                        Text(
-                                          item.endLoc,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ]),
+                                    Icon(Icons.favorite)
+                                  ]),
                             )
                           ],
                         ),
                       ),
                     );
-                    // return Card(
-                    //     child: Padding(
-                    //   padding: EdgeInsets.all(10),
-                    //   child: Column(
-                    //       crossAxisAlignment: CrossAxisAlignment.start,
-                    //       children: [
-                    //         Text(
-                    //           "id : " + item.id.toString(),
-                    //           style: TextStyle(
-                    //             fontSize: 16,
-                    //             fontWeight: FontWeight.w400,
-                    //           ),
-                    //         ),
-                    //         Text(
-                    //           "startLoc : " + item.startLoc,
-                    //           style: TextStyle(
-                    //             fontSize: 16,
-                    //             fontWeight: FontWeight.w400,
-                    //           ),
-                    //         ),
-                    //         Text(
-                    //           "endLoc : " + item.endLoc,
-                    //           style: TextStyle(
-                    //             fontSize: 16,
-                    //             fontWeight: FontWeight.w400,
-                    //           ),
-                    //         ),
-                    //         Text(
-                    //           "image : " + item.image,
-                    //           style: TextStyle(
-                    //             fontSize: 16,
-                    //             fontWeight: FontWeight.w400,
-                    //           ),
-                    //         ),
-                    //         Text(
-                    //           "bookMarked : " +
-                    //               (item.bookMarked ?? false).toString(),
-                    //           style: TextStyle(
-                    //             fontSize: 16,
-                    //             fontWeight: FontWeight.w400,
-                    //           ),
-                    //         )
-                    //       ]),
-                    // ));
                   }),
             ),
+    ));
+  }
+}
+
+class Data {
+  late int id;
+  late String startLoc;
+  late String endLoc;
+  late String image;
+  late bool? bookMarked;
+  Data(
+      {required this.id,
+      required this.startLoc,
+      required this.endLoc,
+      required this.image,
+      required this.bookMarked});
+
+  factory Data.fromJson(Map<String, dynamic> json) {
+    return Data(
+      id: json['id'] as int,
+      startLoc: json['start_loc'].toString(),
+      endLoc: json['end_loc'].toString(),
+      image: json['image'].toString(),
+      bookMarked: json['bookmarked'] as bool?,
     );
   }
 }
